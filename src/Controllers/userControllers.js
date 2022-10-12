@@ -133,12 +133,10 @@ const updateUserData = async (req, res) => {
             return res.status(400).send({ status: false, message: msgUserData })
         }
 
+        //address format change
         if(address){
-            // // data.address = JSON.parse(data.address)
             const { address } = data;
-            // return res.send(address.shipping.street)
             let add = testAddress(address, Data)
-            // return res.send(add.address)
             data.address = add.address
         }
 
