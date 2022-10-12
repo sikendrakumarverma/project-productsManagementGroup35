@@ -1,13 +1,14 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-const router = require('./routes/route.js');
-const { default: mongoose } = require('mongoose');
+const route = require('./routes/route');
+const connection = require("./Sdb_connection/db");
 const app = express();
-const connection = require("./db");
-
+require('dotenv').config();
+const multer= require("multer");
 
 
 app.use(bodyParser.json());
+app.use( multer().any())
 app.use(bodyParser.urlencoded({ extended: true }));
 
 
@@ -16,11 +17,11 @@ app.use(bodyParser.urlencoded({ extended: true }));
 connection();
 
 
-app.use('/', router);
+app.use('/', route);
 
-app.use((req, res) =>{
-   res.status(400).send({ status: false, message: 'invalid URL' })
-})
+// app.use((req, res) =>{
+//    res.status(400).send({ status: false, message: 'invalid URL' })
+// })
 
 
 
