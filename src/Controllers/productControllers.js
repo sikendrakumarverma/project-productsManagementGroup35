@@ -3,13 +3,9 @@ const { createProducts, updateProduct, testProduct } = require("../DataValidatio
 const productModel = require("../Models/productModel");
 const mongoose = require('mongoose')
 const { uploadFile } = require("../Sdb_connection/aws");
-const jwt = require("jsonwebtoken");
-const bcrypt = require('bcryptjs');
 require('dotenv').config();
 
-// function isFloat(n){
-//     return Number(n) === n && n % 1 !== 0;
-// }
+
 
 //===============================> (Product data create by post api) <===========================================//
 
@@ -25,7 +21,6 @@ const createProduct = async (req, res) => {
             isFreeShipping, style, availableSizes, installments } = data;
         const files = req.files;
 
-        // return res.send(typeof installments)
         //Input data validation
         let msgUserData = createProducts(data, files)
         if (msgUserData) {
@@ -140,8 +135,7 @@ const updateProductById = async (req, res) => {
 
         // using destructuring of body data.  
         let data = req.body
-        const { title, description, price, currencyId, currencyFormat,
-            isFreeShipping, style, availableSizes, installments } = data;
+        const { title, price } = data;
         const files = req.files;
 
         if (!ProductId) {
@@ -182,7 +176,7 @@ const updateProductById = async (req, res) => {
         }
 
         let updateData = await productModel.findOneAndUpdate({ _id: ProductId, isDeleted: false }, data, { new: true });
-        return res.status(201).send({ status: true, message: "Product update successfully", data: updateData })
+        return res.status(200).send({ status: true, message: "Product update successfully", data: updateData })
 
     } catch (error) {
         return res.status(500).send({ status: false, message: error.message })
@@ -210,7 +204,7 @@ const deleteProduct = async (req, res) => {
             return res.status(404).send({ status: false, message: "Data not found." })
         }
 
-        await productModel.findOneAndUpdate({ _id: ProductId }, { $set: { isDeleted: true } }, { new: true })
+        await productModel.findOneAndUpdate({ _id: ProductId }, { $set: { isDeleted: true, deletedAt: new Date() } }, { new: true })
         return res.status(200).send({ status: true, message: "product deleted successfully" })
 
     } catch (error) {

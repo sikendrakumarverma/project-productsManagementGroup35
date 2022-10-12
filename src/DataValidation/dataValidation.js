@@ -1,5 +1,6 @@
 const isValidUserData = require('./dataValidationModules');
 // const { createProduct } = require('../DataValidation/dataValidation')
+const mongoose = require('mongoose')
 
 //User data validation
 
@@ -230,7 +231,6 @@ const testProduct = (datas, FindData)=>{
 }
 
 
-
 //Update product
 
 const updateProduct = (data, files) => {
@@ -311,16 +311,17 @@ const isValidCart = (data, UserId) => {
 
     if (mongoose.Types.ObjectId.isValid(productId) == false) return "Product Id is not valid"
 
-    let msgTotalPriceData = isValidUserData.isValidPrice(totalPrice)
-    if (msgTotalPriceData) return msgTotalPriceData
+    // let msgTotalPriceData = isValidUserData.isValidPrice(totalPrice)
+    // if (msgTotalPriceData) return msgTotalPriceData
 
-    let msgTotalItemsData = isValidUserData.isValidPrice(totalItems)
-    if (msgTotalItemsData ) return msgTotalItemsData 
+    // let msgTotalItemsData = isValidUserData.isValidPrice(totalItems)
+    // if (msgTotalItemsData ) return msgTotalItemsData 
 
     let msgTotalQuantityData = isValidUserData.isValidPrice(quantity )
     if (msgTotalQuantityData) return msgTotalQuantityData
 
 }
+
 
 
 

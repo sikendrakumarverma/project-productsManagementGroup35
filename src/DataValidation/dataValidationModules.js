@@ -416,11 +416,25 @@ const isValidinstallments = (value) => {
 
 
 
+const isValidStatus = (value)=>{
+    if (!isValid(value)) {
+        return `Data is required`;
+    }
+
+    let arr = ["pending", "completed", "cancled"]
+    let inc = arr.includes(value)
+    if(!inc){
+        return `${value} ...is invalide status.`
+    }
+}
+
+
+
 
 
 
 module.exports = {
     isValidRequest, isValidName, isValidEmail, isValidFile, isValidPhone, isValidpass, isValidAddress, isValidAdd,
     isValidData, isValidPrice, isValidCurrencyId, isValidCurrencyFormat, isValidFreeShipping, isValidstyle, isValidavailableSizes,
-    isValidinstallments
+    isValidinstallments, isValidStatus
 }
