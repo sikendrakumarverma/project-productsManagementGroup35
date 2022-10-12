@@ -146,7 +146,7 @@ const testAddress = (address, Address)=>{
 
 //Create product's
 
-const createProduct = (data, files) => {
+const createProducts = (data, files) => {
     // using destructuring of body data.                
     const { title, description, price, currencyId, currencyFormat,
         isFreeShipping, style, availableSizes, installments } = data;
@@ -189,6 +189,46 @@ const createProduct = (data, files) => {
         if (msginstallmentsData) return msginstallmentsData
     }
 }
+
+
+//Format product data.
+
+const testProduct = (datas, FindData)=>{
+
+    // using destructuring of body data.  
+    const {title, description, isFreeShipping, style, 
+        availableSizes, installments, currencyId, currencyFormat} = datas
+
+    if(title){
+        FindData.title = title
+    }
+    if(description){
+        FindData.description = description
+    }
+    if(isFreeShipping){
+        datas.isFreeShipping = JSON.parse(datas.isFreeShipping)
+        FindData.isFreeShipping = datas.isFreeShipping
+    }
+    if(style){
+        FindData.style = style
+    }
+    if(availableSizes){
+        datas.availableSizes = [datas.availableSizes]
+        FindData.availableSizes = datas.availableSizes
+    }
+    if(installments){
+        datas.installments = parseInt(datas.installments)
+        FindData.installments = datas.installments     
+    }
+    if(currencyId){
+        FindData.currencyId = datas.currencyId    
+    }
+    if(currencyFormat){
+        FindData.currencyFormat = datas.currencyFormat  
+    }
+    return FindData
+}
+
 
 
 //Update product
@@ -288,5 +328,5 @@ const isValidCart = (data, UserId) => {
 
 module.exports = {
     isValideUser, isValidLoginData, isValideUpdateData,testAddress,
-    createProduct, updateProduct, isValidCart
+    createProducts, testProduct, updateProduct, isValidCart
 }

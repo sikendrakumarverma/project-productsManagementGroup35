@@ -12,7 +12,7 @@ const isValid = (value) => {
 
 const isValidBool = (value) => {
     if (typeof value == "undefined" || value == null) return false;
-    if (typeof value == "boolean" && value.trim().length > 0) return true;
+    if (typeof value == "boolean") return true;
 };
 
 const isValids = (value) => {
@@ -287,7 +287,7 @@ const isValidAdd = (value) => {
  * @param {string} value: nameValue
  */
 
- const isValidData = (value) => {
+const isValidData = (value) => {
 
     if (!isValid(value)) {
         return `Data is required`;
@@ -306,27 +306,27 @@ const isValidAdd = (value) => {
  * @param {string} value: Valid Rating
  */
 
- const isValidPrice = (value) => {
+const isValidPrice = (value) => {
     if (!isValids(value)) {
         return "Price is required and should be a number";
     }
 
-    if(0 < value){
-        return "Price must be geter than 0"
-    }
+    // if(0.00 < value){
+    //     return "Price must be geter than 0"
+    // }
 }
 
 /**
  * @param {string} value: Valid Currency Id
  */
 
-const isValidCurrencyId =(value)=>{
+const isValidCurrencyId = (value) => {
     if (!isValid(value)) {
         return `Currency Id  is required.`;
     }
     const currencyId = ["INR"];
 
-    if(!currencyId.includes(value)){
+    if (!currencyId.includes(value)) {
         return "Invalid currency Id."
     }
 }
@@ -336,14 +336,14 @@ const isValidCurrencyId =(value)=>{
  * @param {string} value: Valid Currency Format
  */
 
- const isValidCurrencyFormat =(value)=>{
+const isValidCurrencyFormat = (value) => {
     if (!isValid(value)) {
         return `Currency Format is required.`;
     }
 
     const currencyFormat = ["₹", "$", "€", "£"];
 
-    if(!currencyFormat.includes(value)){
+    if (!currencyFormat.includes(value)) {
         return "Invalid currency Format."
     }
 }
@@ -353,7 +353,7 @@ const isValidCurrencyId =(value)=>{
  * @param {string} value:  Valid Free Shipping
  */
 
- const isValidFreeShipping =(value)=>{ 
+const isValidFreeShipping = (value) => {
     if (!isValidBool(value)) {
         return `Invalid input data.`;
     }
@@ -364,7 +364,7 @@ const isValidCurrencyId =(value)=>{
  * @param {string} value: Valid Currency Id
  */
 
- const isValidstyle =(value)=>{
+const isValidstyle = (value) => {
     if (!isValid(value)) {
         return `Data is required`;
     }
@@ -382,22 +382,24 @@ const isValidCurrencyId =(value)=>{
  * @param {string} value: Valid Currency Id
  */
 
- const isValidavailableSizes =(value)=>{ //["S", "XS","M","X", "L","XXL", "XL"]
-    if(!value){
+const isValidavailableSizes = (value) => { //["S", "XS","M","X", "L","XXL", "XL"]
+    if (!value) {
         return "please enter any value"
     }
-    if(!Array.isArray(value)){
+    if (!Array.isArray(value)) {
         return "please enter array type of data"
     }
-    let arr = ["S", "XS","M","X", "L","XXL", "XL"];
-    let data = value.map((items)=>{
-        let inc = arr.includes(items)
-        if(inc == false){
-            return items
+    if (value.length > 0) {
+        let arr = ["S", "XS", "M", "X", "L", "XXL", "XL"];
+        for (let i = 0; i < value.length; i++) {
+            let inc = arr.includes(value[i])
+            if (inc === false) {
+                return `${value[i]} ...is invalid Sizes.`
+            }
         }
-    })
-    if(data){
-        return `${data} is invalid Sizes.`
+        // if (str) {
+        //     return `${str} ...is invalid Sizes.`
+        // }
     }
 }
 
@@ -406,7 +408,7 @@ const isValidCurrencyId =(value)=>{
  * @param {string} value: Valid installments
  */
 
- const isValidinstallments =(value)=>{
+const isValidinstallments = (value) => {
     if (!isValids(value)) {
         return "Installments should be a number";
     }
@@ -417,6 +419,8 @@ const isValidCurrencyId =(value)=>{
 
 
 
-module.exports = { isValidRequest, isValidName, isValidEmail, isValidFile, isValidPhone, isValidpass, isValidAddress, isValidAdd,
+module.exports = {
+    isValidRequest, isValidName, isValidEmail, isValidFile, isValidPhone, isValidpass, isValidAddress, isValidAdd,
     isValidData, isValidPrice, isValidCurrencyId, isValidCurrencyFormat, isValidFreeShipping, isValidstyle, isValidavailableSizes,
-    isValidinstallments}
+    isValidinstallments
+}

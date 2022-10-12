@@ -1,5 +1,5 @@
 const isValidUserData = require('../DataValidation/dataValidationModules');
-const { createProducts, updateProduct } = require("../DataValidation/dataValidation")
+const { createProducts, updateProduct, testProduct } = require("../DataValidation/dataValidation")
 const productModel = require("../Models/productModel");
 const mongoose = require('mongoose')
 const { uploadFile } = require("../Sdb_connection/aws");
@@ -7,6 +7,9 @@ const jwt = require("jsonwebtoken");
 const bcrypt = require('bcryptjs');
 require('dotenv').config();
 
+// function isFloat(n){
+//     return Number(n) === n && n % 1 !== 0;
+// }
 
 //===============================> (Product data create by post api) <===========================================//
 
@@ -14,10 +17,15 @@ const createProduct = async (req, res) => {
     try {
         // using destructuring of body data.  
         let data = req.body
+        data.availableSizes = JSON.parse(data.availableSizes)
+        data.isFreeShipping = JSON.parse(data.isFreeShipping)
+        data.price = parseInt(data.price)
+        data.installments = parseInt(data.installments)
         const { title, description, price, currencyId, currencyFormat,
             isFreeShipping, style, availableSizes, installments } = data;
         const files = req.files;
 
+        // return res.send(typeof installments)
         //Input data validation
         let msgUserData = createProducts(data, files)
         if (msgUserData) {
@@ -33,14 +41,14 @@ const createProduct = async (req, res) => {
         let uploadedFileURL = await uploadFile(files[0])
 
         //Create User data after format 
-        const UserData = {
+        const ProductData = {
             title: title, description: description, price: price,
             currencyId: currencyId, currencyFormat: currencyFormat,
             isFreeShipping: isFreeShipping, productImage: uploadedFileURL, style: style,
             availableSizes: availableSizes, installments: installments
         };
 
-        const createProduct = await productModel.create(UserData);
+        const createProduct = await productModel.create(ProductData);
         return res.status(201).send({ status: true, message: "Product created successfully", data: createProduct })
 
 
@@ -55,7 +63,38 @@ const createProduct = async (req, res) => {
 
 const getProductData = async (req, res) => {
     try {
-        let data = await productModel.find({ isDeleted: false })
+        let datas = req.query
+        // using destructuring of body data.  
+        const { priceLessThan,priceGreaterThan, availableSizes} = datas
+        let FindData = {}
+        let Price = {}
+
+        let Pdata = testProduct(datas, FindData)
+
+        let msgUserData = updateProduct(Pdata)
+        if (msgUserData) {
+            return res.status(400).send({ status: false, message: msgUserData })
+        }
+
+        if(availableSizes){
+            FindData.availableSizes = availableSizes
+        }
+
+        if (priceGreaterThan) {
+            datas.priceGreaterThan = parseInt(datas.priceGreaterThan)
+            Price.$gt = datas.priceGreaterThan;
+            Pdata.price = Price
+        }
+
+        if (priceLessThan) {
+            datas.priceLessThan = parseInt(datas.priceLessThan)
+            Price.$lt = datas.priceLessThan;
+            Pdata.price = Price
+        }
+        FindData.isDeleted = false
+
+        // return res.send(FindData)
+        let data = await productModel.find(FindData)
         return res.status(200).send({ status: true, message: "products get successfully", data: data })
 
     } catch (error) {
@@ -119,26 +158,31 @@ const updateProductById = async (req, res) => {
         }
 
         //Input data validation
-        let msgUserData = updateProduct(data, files)
+        let FindData = {}
+        let Pdata = testProduct(data, FindData)
+        if(price)  Pdata.price = parseInt(price)
+
+        // return res.send(Pdata)
+        let msgUserData = updateProduct(Pdata, files)
         if (msgUserData) {
             return res.status(400).send({ status: false, message: msgUserData })
         }
 
         if (title) {
-            const isTitleUnique = await productModel.findOne({ title: title, isDeleted: false});
+            const isTitleUnique = await productModel.findOne({ title: title, isDeleted: false });
             if (isTitleUnique) {
                 return res.status(400).send({ status: false, message: `title: ${title} already exist` });
             }
         }
 
         // Files data to url convert
-        if(files.length > 0){
+        if (files.length > 0) {
             let uploadedFileURL = await uploadFile(files[0])
             data.productImage = uploadedFileURL;
         }
 
-        await productModel.findOneAndUpdate({_id: ProductId, isDeleted: false}, data, {new: true});
-        return res.status(201).send({ status: true, message: "Product update successfully"})
+        let updateData = await productModel.findOneAndUpdate({ _id: ProductId, isDeleted: false }, data, { new: true });
+        return res.status(201).send({ status: true, message: "Product update successfully", data: updateData })
 
     } catch (error) {
         return res.status(500).send({ status: false, message: error.message })
@@ -166,8 +210,8 @@ const deleteProduct = async (req, res) => {
             return res.status(404).send({ status: false, message: "Data not found." })
         }
 
-        await productModel.findOneAndUpdate({ _id: ProductId },{$set: {isDeleted: true}}, {new: true})
-        return res.status(200).send({ status: true, message: "product deleted successfully"})
+        await productModel.findOneAndUpdate({ _id: ProductId }, { $set: { isDeleted: true } }, { new: true })
+        return res.status(200).send({ status: true, message: "product deleted successfully" })
 
     } catch (error) {
         return res.status(500).send({ status: false, message: error.message })
