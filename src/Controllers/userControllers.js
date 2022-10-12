@@ -1,4 +1,4 @@
-const {isValideUser, isValidLoginData, isValideUpdateData} = require('../DataValidation/dataValidation');
+const {isValideUser, isValidLoginData, isValideUpdateData, testAddress} = require('../DataValidation/dataValidation');
 const isValidUserData= require('../DataValidation/dataValidationModules');
 const userModel = require("../Models/UserModel");
 const {uploadFile} = require("../Sdb_connection/aws");
@@ -102,8 +102,9 @@ const userLogin = async (req, res) => {
 
 const getUserData = async (req, res) => {
     try {
-        //Data come from authorization
-        let data = req.let;
+        //Data come from 
+        let UserId = req.user
+        let data = await userModel.findById(UserId)
 
         return res.status(200).send({ status: true, message: "User profile details", data: data });
 
@@ -119,7 +120,7 @@ const getUserData = async (req, res) => {
 const updateUserData = async (req, res) => {
     try {
         let userId = req.params.userId;
-        let Data = req.let;
+        let Data = await userModel.findById(userId).select({address: 1, _id: 0})
 
         // using destructuring of body data.
         let data = req.body
@@ -131,6 +132,16 @@ const updateUserData = async (req, res) => {
         if (msgUserData) {
             return res.status(400).send({ status: false, message: msgUserData })
         }
+
+        if(address){
+            // // data.address = JSON.parse(data.address)
+            const { address } = data;
+            // return res.send(address.shipping.street)
+            let add = testAddress(address, Data)
+            // return res.send(add.address)
+            data.address = add.address
+        }
+
 
         if (password) {
             let msgPassData = isValidUserData.isValidpass(password)

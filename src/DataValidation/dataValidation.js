@@ -96,7 +96,49 @@ const isValideUpdateData = (data, Data) => {
         let msgAddressData = isValidUserData.isValidAdd(data.address)
         if (msgAddressData) return msgAddressData
     }
+    
 }
+
+// {
+//     "address": {
+//         "shipping": {
+//             "street": "Bijoy"
+//         }
+//     }
+// }
+
+const testAddress = (address, Address)=>{
+        if (address.shipping) {
+            if (address.shipping.street) {
+                Address.address.shipping.street = address.shipping.street
+            }
+
+            if (address.shipping.city) {
+                Address.address.shipping.city = address.shipping.city
+            }
+
+            if (address.shipping.pincode) {
+                Address.address.shipping.pincode = address.shipping.pincode
+            } 
+        }
+        if (address.billing) {
+            if (address.billing.street) {
+                Address.address.billing.street = address.billing.street
+            } 
+
+            if (address.billing.city) {
+                Address.address.billing.city = address.billing.city
+            } 
+
+            if (address.billing.pincode) {
+                Address.address.billing.pincode = address.billing.pincode
+            }
+
+        }
+        return Address
+
+    }
+
 
 //==========================================> (Product api) <==================================================//
 
@@ -245,6 +287,6 @@ const isValidCart = (data, UserId) => {
 
 
 module.exports = {
-    isValideUser, isValidLoginData, isValideUpdateData,
+    isValideUser, isValidLoginData, isValideUpdateData,testAddress,
     createProduct, updateProduct, isValidCart
 }

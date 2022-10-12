@@ -55,9 +55,7 @@ const authorization = async (req, res, next)=>{
         if (Id !== data) {
             return res.status(403).send({ status: false, message: `unauthorized access` });
         }
-        const UserData = await userModel.findById(data)
-        // return console.log(UserData)
-        req.let = UserData
+        req.user = Id
         next()
 
     } catch (err) {
