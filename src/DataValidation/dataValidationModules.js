@@ -100,7 +100,7 @@ const isValidFile = (value) => {
         return "file must not contain Whitespaces.";
     }
 
-    let regex = /^.*\.(jpg|JPG|gif|GIF)$/
+    let regex = /^.*\.(jpg|JPG|gif|GIF|png)$/
     if (!regex.test(value[0].originalname)) {
         return "Invalid file extension.";
     }

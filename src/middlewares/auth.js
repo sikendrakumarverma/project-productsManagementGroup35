@@ -8,29 +8,26 @@ require('dotenv').config();
 
 const authentication = async (req, res, next)=>{
     try {
-        let headers = req.headers.authorization;
+        let token = req.headers.authorization.split(" ")[1];
 
         //Token present or not
-        if (!headers) {
+        if (!token) {
             return res.status(400).send({ status: false, msg: "Please enter token number." })
         }
-        //if any other key present in key
-        const token = headers.split(" ")[1];
-        // return res.send(token)
-
         //Verify sekret key
-        jwt.verify(String(token), process.env.secretKey, (err, user) => {
-            if (err) {
-                res.status(401).send({ status: false, msg: "Invalid Token" })
-            } else {
-                if (user.exp < Date.now() / 1000){
-                    return res.status(400).send({ status: false, message: "Token is Expired, Please relogin" });
-                } 
-                req.Id = user.userId;
-                // return res.send(req.Id)
-                next();
+        let decodedToken=jwt.verify(String(token), process.env.secretKey, { ignoreExpiration: true }, function (error, done) {
+            if (error) {
+              return res.status(400).send({ status: false, message: "Token is Invalid" });
             }
-        })
+            return done;
+          })
+      
+          if (decodedToken.exp < Date.now() / 1000) return res.status(400).send({ status: false, message: "Token is Expired, Please relogin" });
+                req.Id = decodedToken.userId;
+                 return res.send(req.Id)
+                next();
+            
+        
 
     } catch (error) {
         res.status(500).send({ status: false, msg: error.message })
