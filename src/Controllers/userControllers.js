@@ -84,7 +84,7 @@ const userLogin = async (req, res) => {
         }
 
         // creating JWT
-        const token = jwt.sign({ userId: isEmailUnique._id }, process.env.secretKey, { expiresIn: "1m" });
+        const token = jwt.sign({ userId: isEmailUnique._id }, process.env.secretKey, { expiresIn: "1h" });
 
         //Format of data.
         let Data = {
