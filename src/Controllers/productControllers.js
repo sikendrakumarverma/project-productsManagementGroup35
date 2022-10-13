@@ -15,7 +15,7 @@ const createProduct = async (req, res) => {
         let data = req.body
         data.availableSizes = JSON.parse(data.availableSizes)
         data.isFreeShipping = JSON.parse(data.isFreeShipping)
-        data.price = parseInt(data.price)
+        data.price = parseFloat(data.price)
         data.installments = parseInt(data.installments)
         const { title, description, price, currencyId, currencyFormat,
             isFreeShipping, style, availableSizes, installments } = data;
@@ -76,20 +76,20 @@ const getProductData = async (req, res) => {
         }
 
         if (priceGreaterThan) {
-            datas.priceGreaterThan = parseInt(datas.priceGreaterThan)
+            datas.priceGreaterThan = parseFloat(datas.priceGreaterThan)
             Price.$gt = datas.priceGreaterThan;
             Pdata.price = Price
         }
 
         if (priceLessThan) {
-            datas.priceLessThan = parseInt(datas.priceLessThan)
+            datas.priceLessThan = parseFloat(datas.priceLessThan)
             Price.$lt = datas.priceLessThan;
             Pdata.price = Price
         }
         FindData.isDeleted = false
 
         // return res.send(FindData)
-        let data = await productModel.find(FindData)
+        let data = await productModel.find(FindData).sort( { "price": -1 } )
         return res.status(200).send({ status: true, message: "products get successfully", data: data })
 
     } catch (error) {
@@ -153,8 +153,8 @@ const updateProductById = async (req, res) => {
 
         //Input data validation
         let FindData = {}
-        let Pdata = testProduct(data, FindData)
-        if(price)  Pdata.price = parseInt(price)
+        let Pdata = testProduct(data, FindData, product)
+        if(price)  Pdata.price = parseFloat(price)
 
         // return res.send(Pdata)
         let msgUserData = updateProduct(Pdata, files)

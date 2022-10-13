@@ -60,22 +60,16 @@ const isValideUpdateData = (data, Data) => {
 
     //Input data validation
     let msgUserData = isValidUserData.isValidRequest(data)
-    if (msgUserData) {
-        return res.status(400).send({ status: false, message: msgUserData })
-    }
+    if (msgUserData) return msgUserData
 
     if (fname) {
         let msgFnameData = isValidUserData.isValidName(fname)
-        if (msgFnameData) {
-            return res.status(400).send({ status: false, message: msgFnameData })
-        }
+        if (msgFnameData) return  msgFnameData 
     }
 
     if (lname) {
         let msgLnameData = isValidUserData.isValidName(lname)
-        if (msgLnameData) {
-            return res.status(400).send({ status: false, message: msgLnameData })
-        }
+        if (msgLnameData) return  msgLnameData
     }
 
     if (email) {
@@ -97,7 +91,7 @@ const isValideUpdateData = (data, Data) => {
         let msgAddressData = isValidUserData.isValidAdd(data.address)
         if (msgAddressData) return msgAddressData
     }
-    
+
 }
 
 // {
@@ -108,37 +102,37 @@ const isValideUpdateData = (data, Data) => {
 //     }
 // }
 
-const testAddress = (address, Address)=>{
-        if (address.shipping) {
-            if (address.shipping.street) {
-                Address.address.shipping.street = address.shipping.street
-            }
-
-            if (address.shipping.city) {
-                Address.address.shipping.city = address.shipping.city
-            }
-
-            if (address.shipping.pincode) {
-                Address.address.shipping.pincode = address.shipping.pincode
-            } 
+const testAddress = (address, Address) => {
+    if (address.shipping) {
+        if (address.shipping.street) {
+            Address.address.shipping.street = address.shipping.street
         }
-        if (address.billing) {
-            if (address.billing.street) {
-                Address.address.billing.street = address.billing.street
-            } 
 
-            if (address.billing.city) {
-                Address.address.billing.city = address.billing.city
-            } 
-
-            if (address.billing.pincode) {
-                Address.address.billing.pincode = address.billing.pincode
-            }
-
+        if (address.shipping.city) {
+            Address.address.shipping.city = address.shipping.city
         }
-        return Address
+
+        if (address.shipping.pincode) {
+            Address.address.shipping.pincode = address.shipping.pincode
+        }
+    }
+    if (address.billing) {
+        if (address.billing.street) {
+            Address.address.billing.street = address.billing.street
+        }
+
+        if (address.billing.city) {
+            Address.address.billing.city = address.billing.city
+        }
+
+        if (address.billing.pincode) {
+            Address.address.billing.pincode = address.billing.pincode
+        }
 
     }
+    return Address
+
+}
 
 
 //==========================================> (Product api) <==================================================//
@@ -194,38 +188,52 @@ const createProducts = (data, files) => {
 
 //Format product data.
 
-const testProduct = (datas, FindData)=>{
+const testProduct = (datas, FindData, product) => {
 
     // using destructuring of body data.  
-    const {title, description, isFreeShipping, style, 
-        availableSizes, installments, currencyId, currencyFormat} = datas
+    const { title, description, isFreeShipping, style,removeSize,
+        availableSizes, installments, currencyId, currencyFormat } = datas
 
-    if(title){
+    if (title) {
         FindData.title = title
     }
-    if(description){
+    if (description) {
         FindData.description = description
     }
-    if(isFreeShipping){
+    if (isFreeShipping) {
         datas.isFreeShipping = JSON.parse(datas.isFreeShipping)
         FindData.isFreeShipping = datas.isFreeShipping
     }
-    if(style){
+    if (style) {
         FindData.style = style
     }
-    if(availableSizes){
-        datas.availableSizes = [datas.availableSizes]
-        FindData.availableSizes = datas.availableSizes
+    if (availableSizes) {
+        let Size = product.availableSizes
+        let value = datas.availableSizes
+        let inc = Size.includes(value)
+        if (inc === false) {
+            Size.push(value)
+        }
+        FindData.availableSizes = Size
     }
-    if(installments){
+    if (removeSize) {
+        let Size = FindData.availableSizes
+        let value = datas.removeSize
+        let inc = Size.includes(value)
+        if (inc === true) {
+            Size = Size.filter(element => element !== value);
+        }
+        FindData.availableSizes = Size
+    }
+    if (installments) {
         datas.installments = parseInt(datas.installments)
-        FindData.installments = datas.installments     
+        FindData.installments = datas.installments
     }
-    if(currencyId){
-        FindData.currencyId = datas.currencyId    
+    if (currencyId) {
+        FindData.currencyId = datas.currencyId
     }
-    if(currencyFormat){
-        FindData.currencyFormat = datas.currencyFormat  
+    if (currencyFormat) {
+        FindData.currencyFormat = datas.currencyFormat
     }
     return FindData
 }
@@ -301,13 +309,13 @@ const isValidCart = (data, UserId) => {
     const { userId, items, totalPrice, totalItems } = data;
     const { productId, quantity } = items[0]
 
-    if(UserId != userId) return "Params and from user Id not match"
+    if (UserId != userId) return "Params and from user Id not match"
 
-    if (!userId) return  "User Id not preasent" ;
+    if (!userId) return "User Id not preasent";
 
-    if (mongoose.Types.ObjectId.isValid(userId) == false) return  "User Id is not valid" ;
+    if (mongoose.Types.ObjectId.isValid(userId) == false) return "User Id is not valid";
 
-    if (!productId)  return "Product Id not preasent"
+    if (!productId) return "Product Id not preasent"
 
     if (mongoose.Types.ObjectId.isValid(productId) == false) return "Product Id is not valid"
 
@@ -317,7 +325,7 @@ const isValidCart = (data, UserId) => {
     // let msgTotalItemsData = isValidUserData.isValidPrice(totalItems)
     // if (msgTotalItemsData ) return msgTotalItemsData 
 
-    let msgTotalQuantityData = isValidUserData.isValidPrice(quantity )
+    let msgTotalQuantityData = isValidUserData.isValidPrice(quantity)
     if (msgTotalQuantityData) return msgTotalQuantityData
 
 }
@@ -328,6 +336,6 @@ const isValidCart = (data, UserId) => {
 
 
 module.exports = {
-    isValideUser, isValidLoginData, isValideUpdateData,testAddress,
+    isValideUser, isValidLoginData, isValideUpdateData, testAddress,
     createProducts, testProduct, updateProduct, isValidCart
 }

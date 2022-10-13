@@ -13,6 +13,7 @@ const userCreate = async (req, res) => {
     try {
         // using destructuring of body data.
         let data = req.body
+        if(!data.address) return res.status(400).send({status: false, message: "Address is requird"})
         data.address = JSON.parse(data.address)
         const { fname, lname, email, phone, password, address } = data;
         const files = req.files;
