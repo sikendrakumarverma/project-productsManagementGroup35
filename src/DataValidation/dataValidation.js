@@ -27,8 +27,12 @@ const isValideUser = (data, files) => {
     let msgPassData = isValidUserData.isValidpass(password)
     if (msgPassData) return msgPassData
 
-    let msgAddressData = isValidUserData.isValidAddress(address)
-    if (msgAddressData) return msgAddressData
+    if(!data.address) return res.status(400).send({status: false, message: "Address is requird"})
+    if(address){
+        data.address = JSON.parse(address)
+        let msgAddressData = isValidUserData.isValidAddress(data.address)
+        if (msgAddressData) return msgAddressData
+    }
 
     let msgFileData = isValidUserData.isValidFile(files)
     if (msgFileData) return msgFileData

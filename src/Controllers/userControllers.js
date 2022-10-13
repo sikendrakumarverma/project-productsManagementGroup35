@@ -1,7 +1,7 @@
-const {isValideUser, isValidLoginData, isValideUpdateData, testAddress} = require('../DataValidation/dataValidation');
-const isValidUserData= require('../DataValidation/dataValidationModules');
+const { isValideUser, isValidLoginData, isValideUpdateData, testAddress } = require('../DataValidation/dataValidation');
+const isValidUserData = require('../DataValidation/dataValidationModules');
 const userModel = require("../Models/UserModel");
-const {uploadFile} = require("../Sdb_connection/aws");
+const { uploadFile } = require("../Sdb_connection/aws");
 const jwt = require("jsonwebtoken");
 const bcrypt = require('bcryptjs');
 require('dotenv').config();
@@ -13,9 +13,6 @@ const userCreate = async (req, res) => {
     try {
         // using destructuring of body data.
         let data = req.body
-        if(!data.address) return res.status(400).send({status: false, message: "Address is requird"})
-        data.address = JSON.parse(data.address)
-        const { fname, lname, email, phone, password, address } = data;
         const files = req.files;
 
         //Input data validation
@@ -23,6 +20,9 @@ const userCreate = async (req, res) => {
         if (msgUserData) {
             return res.status(400).send({ status: false, message: msgUserData })
         }
+
+        // using destructuring of body data.
+        const { fname, lname, email, phone, password, address } = data;
 
         const isEmailUnique = await userModel.findOne({ email });
         if (isEmailUnique) {
@@ -121,7 +121,7 @@ const getUserData = async (req, res) => {
 const updateUserData = async (req, res) => {
     try {
         let userId = req.params.userId;
-        let Data = await userModel.findById(userId).select({address: 1, _id: 0})
+        let Data = await userModel.findById(userId).select({ address: 1, _id: 0 })
 
         // using destructuring of body data.
         let data = req.body
@@ -135,7 +135,7 @@ const updateUserData = async (req, res) => {
         }
 
         //address format change
-        if(address){
+        if (address) {
             const { address } = data;
             let add = testAddress(address, Data)
             data.address = add.address
