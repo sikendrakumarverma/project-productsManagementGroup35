@@ -54,22 +54,25 @@ const isValidLoginData = (data) => {
 
 //User profile update.
 
-const isValideUpdateData = (data, Data) => {
+const isValideUpdateData = (data, Data, files) => {
     // using destructuring of body data.
     const { fname, lname, email, phone, password, address } = data;
 
     //Input data validation
-    let msgUserData = isValidUserData.isValidRequest(data)
-    if (msgUserData) return msgUserData
+    if ((Object.keys(data).length > 0) || (files.length > 0)) return "Any key and value is required."
+    if (data) {
+        let msgUserData = isValidUserData.isValidRequest(data)
+        if (msgUserData) return msgUserData
+    }
 
     if (fname) {
         let msgFnameData = isValidUserData.isValidName(fname)
-        if (msgFnameData) return  msgFnameData 
+        if (msgFnameData) return msgFnameData
     }
 
     if (lname) {
         let msgLnameData = isValidUserData.isValidName(lname)
-        if (msgLnameData) return  msgLnameData
+        if (msgLnameData) return msgLnameData
     }
 
     if (email) {
@@ -191,7 +194,7 @@ const createProducts = (data, files) => {
 const testProduct = (datas, FindData, product) => {
 
     // using destructuring of body data.  
-    const { title, description, isFreeShipping, style,removeSize,
+    const { title, description, isFreeShipping, style, removeSize,
         availableSizes, installments, currencyId, currencyFormat } = datas
 
     if (title) {
@@ -247,8 +250,11 @@ const updateProduct = (data, files) => {
         isFreeShipping, style, availableSizes, installments } = data;
 
     //Input data validation
-    let msgUserData = isValidUserData.isValidRequest(data)
-    if (msgUserData) return msgUserData
+    if (data) {
+        let msgUserData = isValidUserData.isValidRequest(data)
+        if (msgUserData) return msgUserData
+    }
+
 
     if (title) {
         let msgTitleData = isValidUserData.isValidData(title)

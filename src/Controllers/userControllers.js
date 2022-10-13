@@ -129,7 +129,7 @@ const updateUserData = async (req, res) => {
         const files = req.files;
 
         //Input data validation
-        let msgUserData = isValideUpdateData(data, Data)
+        let msgUserData = isValideUpdateData(data, Data, files)
         if (msgUserData) {
             return res.status(400).send({ status: false, message: msgUserData })
         }

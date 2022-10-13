@@ -13,10 +13,10 @@ const createProduct = async (req, res) => {
     try {
         // using destructuring of body data.  
         let data = req.body
-        data.availableSizes = JSON.parse(data.availableSizes)
-        data.isFreeShipping = JSON.parse(data.isFreeShipping)
-        data.price = parseFloat(data.price)
-        data.installments = parseInt(data.installments)
+        if(data.availableSizes) data.availableSizes = JSON.parse(data.availableSizes)
+        if(data.isFreeShipping) data.isFreeShipping = JSON.parse(data.isFreeShipping)
+        if(data.price ) data.price = parseFloat(data.price)
+        if(data.installments) data.installments = parseInt(data.installments)
         const { title, description, price, currencyId, currencyFormat,
             isFreeShipping, style, availableSizes, installments } = data;
         const files = req.files;
