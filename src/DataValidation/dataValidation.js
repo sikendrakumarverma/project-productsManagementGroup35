@@ -1,5 +1,4 @@
 const isValidUserData = require('./dataValidationModules');
-// const { createProduct } = require('../DataValidation/dataValidation')
 const mongoose = require('mongoose');
 const { find } = require('../Models/UserModel');
 
@@ -365,10 +364,9 @@ const updateProduct = (pdata, product, files) => {
     if (availableSizes) {
         if (availableSizes.length < 4 && availableSizes.length > 0) {
             let value = product.availableSizes
-            value.push(availableSizes)
+            let inct = value.includes(availableSizes)
+            if(!inct) value.push(availableSizes)
             pdata.availableSizes = value
-            let msgavailableSizesData = isValidUserData.isValidavailableSizes(pdata.availableSizes)
-            if (msgavailableSizesData) return msgavailableSizesData
         }
         if (availableSizes.length > 3) {
             let sizes = availableSizes.split(",")
@@ -386,13 +384,25 @@ const updateProduct = (pdata, product, files) => {
     }
 
     if (removeSize) {
-        let Size = product.availableSizes
-        let value = pdata.removeSize
-        let inc = Size.includes(value)
-        if (inc === true) {
-            Size = Size.filter(element => element !== value);
+        if (removeSize.length < 4 && removeSize.length > 0) {
+            let value = product.availableSizes
+            let inct = value.includes(removeSize)
+            if(inct) value = value.filter(element => element !== removeSize);
+            pdata.availableSizes = value
         }
-        pdata.availableSizes = Size
+        if (removeSize.length > 3) {
+            let sizes = removeSize.split(",")
+            let value = product.availableSizes
+            for (let i = 0; i < sizes.length; i++) {
+                let inct = value.includes(sizes[i])
+                if (inct) {
+                    value= value.filter(element => element !== sizes[i]);
+                }
+            }
+            pdata.availableSizes = value
+            let msgavailableSizesData = isValidUserData.isValidavailableSizes(pdata.availableSizes)
+            if (msgavailableSizesData) return msgavailableSizesData
+        }
     }
 
     if (installments) {

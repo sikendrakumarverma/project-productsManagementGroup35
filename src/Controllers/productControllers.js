@@ -154,9 +154,8 @@ const updateProductById = async (req, res) => {
         let pdata = testProduct(data, FindData, product)
         if(price)  pdata.price = parseFloat(price)
        
-        //  return res.send(data.removeSize)
         let msgUserData = updateProduct(pdata, product, files)
-        // FindData.availableSizes = pdata.availableSizes;
+        FindData.availableSizes = pdata.availableSizes;
         if (msgUserData) {
             return res.status(400).send({ status: false, message: msgUserData })
         }
