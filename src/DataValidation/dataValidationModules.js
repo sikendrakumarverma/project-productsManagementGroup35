@@ -160,7 +160,7 @@ const addressData = (value) => {
     }
 
     if (typeof value.street != "string") {
-        return "street is name string";
+        return "street is  string";
     }
 
     if (!/^[a-zA-Z0-9,. ]*$/.test(value.street)) {
@@ -221,7 +221,7 @@ const addressDatas = (value) => {
 
     if (value.street) {
         if (typeof value.street != "string") {
-            return "street is name string";
+            return "street is  string";
         }
 
         if (!/^[a-zA-Z0-9,. ]*$/.test(value.street)) {
@@ -311,9 +311,9 @@ const isValidPrice = (value) => {
         return "Price is required and should be a number";
     }
 
-    // if(0.00 < value){
-    //     return "Price must be geter than 0"
-    // }
+    if(0 < value){
+        return "Price must be geter than 0"
+    }
 }
 
 /**

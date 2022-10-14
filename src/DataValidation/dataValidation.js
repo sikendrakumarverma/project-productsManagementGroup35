@@ -27,8 +27,8 @@ const isValideUser = (data, files) => {
     let msgPassData = isValidUserData.isValidpass(password)
     if (msgPassData) return msgPassData
 
-    if(!data.address) return res.status(400).send({status: false, message: "Address is requird"})
-    if(address){
+    if (!data.address) return res.status(400).send({ status: false, message: "Address is requird" })
+    if (address) {
         data.address = JSON.parse(address)
         let msgAddressData = isValidUserData.isValidAddress(data.address)
         if (msgAddressData) return msgAddressData
@@ -163,18 +163,33 @@ const createProducts = (data, files) => {
     let msgDesData = isValidUserData.isValidData(description)
     if (msgDesData) return msgDesData
 
-    let msgPriceData = isValidUserData.isValidPrice(price)
-    if (msgPriceData) return msgPriceData
+    if (!price) {
+        return "price is required"
+    } else {
 
-    let msgcurrencyIdData = isValidUserData.isValidCurrencyId(currencyId)
-    if (msgcurrencyIdData) return msgcurrencyIdData
+        if (!/^\d*\.?\d*$/.test(price)) return "price should only decimal number or number "
+        data.price = parseFloat(price)
+    }
 
-    let msgCurrencyFormatData = isValidUserData.isValidCurrencyFormat(currencyFormat)
-    if (msgCurrencyFormatData) return msgCurrencyFormatData
 
-    let msgisFreeShippingData = isValidUserData.isValidFreeShipping(isFreeShipping)
-    if (msgisFreeShippingData) return msgisFreeShippingData
+    if (!currencyId) {
+        data.currencyId = "INR"
+    } else {
+        let msgcurrencyIdData = isValidUserData.isValidCurrencyId(currencyId)
+        if (msgcurrencyIdData) return msgcurrencyIdData
+    }
 
+    if (!currencyFormat) {
+        data.currencyFormat = "₹"
+    } else {
+        let msgCurrencyFormatData = isValidUserData.isValidCurrencyFormat(currencyFormat)
+        if (msgCurrencyFormatData) return msgCurrencyFormatData
+    }
+    if (isFreeShipping) {
+        data.isFreeShipping = JSON.parse(isFreeShipping)
+        let msgisFreeShippingData = isValidUserData.isValidFreeShipping(data.isFreeShipping)
+        if (msgisFreeShippingData) return msgisFreeShippingData
+    }
     let msgFileData = isValidUserData.isValidFile(files)
     if (msgFileData) return msgFileData
 
@@ -183,12 +198,19 @@ const createProducts = (data, files) => {
         if (msgstyleData) return msgstyleData
     }
 
-    let msgavailableSizesData = isValidUserData.isValidavailableSizes(availableSizes)
-    if (msgavailableSizesData) return msgavailableSizesData
-
+    if (availableSizes.length < 4 && availableSizes.length >0) {
+        let arr = ["S", "XS", "M", "X", "L", "XXL", "XL"];
+        let inc = arr.includes(availableSizes)
+        if (!inc) return "availableSizes size should be only : S, XS, M, X, L, XXL, XL"
+    } else {
+        data.availableSizes=availableSizes.split(",")
+        let msgavailableSizesData = isValidUserData.isValidavailableSizes(data.availableSizes)
+        if (msgavailableSizesData) return msgavailableSizesData
+    }
     if (installments) {
-        let msginstallmentsData = isValidUserData.isValidinstallments(installments)
-        if (msginstallmentsData) return msginstallmentsData
+        if (!(/\b([1-9]|[1-9][0-9]|100)\b/gm).test(installments)) return "installments should be number"
+        data.installments = parseInt(installments)
+
     }
 }
 

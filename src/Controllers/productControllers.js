@@ -13,19 +13,19 @@ const createProduct = async (req, res) => {
     try {
         // using destructuring of body data.  
         let data = req.body
-        if(data.availableSizes) data.availableSizes = JSON.parse(data.availableSizes)
-        if(data.isFreeShipping) data.isFreeShipping = JSON.parse(data.isFreeShipping)
-        if(data.price ) data.price = parseFloat(data.price)
-        if(data.installments) data.installments = parseInt(data.installments)
-        const { title, description, price, currencyId, currencyFormat,
-            isFreeShipping, style, availableSizes, installments } = data;
         const files = req.files;
+        //console.log(availableSizes.split(","))
 
+        //return res.send(availableSizes)
         //Input data validation
         let msgUserData = createProducts(data, files)
         if (msgUserData) {
             return res.status(400).send({ status: false, message: msgUserData })
         }
+        
+        const { title, description, price, currencyId, currencyFormat,
+            isFreeShipping, style, availableSizes, installments } = data;
+            return res.send(typeof data.price)
 
         const isTitleUnique = await productModel.findOne({ title });
         if (isTitleUnique) {
