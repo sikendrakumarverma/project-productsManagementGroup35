@@ -41,7 +41,7 @@ router.post("/products" ,  productController.createProduct)
 
 //When user login call this api.
 
-router.get("/products", productController.getProductData)
+router.get("/productsd", productController.getProductData)
 
 //When get api call.
 

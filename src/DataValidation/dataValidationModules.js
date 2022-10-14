@@ -100,7 +100,7 @@ const isValidFile = (value) => {
         return "file must not contain Whitespaces.";
     }
 
-    let regex = /^.*\.(jpg|JPG|gif|GIF|png)$/
+    let regex = /^.*\.(jpg|JPG|gif|GIF|png|jpeg)$/
     if (!regex.test(value[0].originalname)) {
         return "Invalid file extension.";
     }
@@ -290,7 +290,19 @@ const isValidAdd = (value) => {
 const isValidData = (value) => {
 
     if (!isValid(value)) {
-        return `Data is required`;
+        return `Data  is required`;
+    }
+
+    let regex = /^[a-zA-Z0-9,. ]*$/
+
+    if (!regex.test(value)) {
+        return `${value} should be in valid format`;
+    }
+}
+const isValidTitle = (value) => {
+
+    if (!isValid(value)) {
+        return `Title  is required`;
     }
 
     let regex = /^[a-zA-Z0-9,. ]*$/
@@ -311,9 +323,9 @@ const isValidPrice = (value) => {
         return "Price is required and should be a number";
     }
 
-    if(0 < value){
-        return "Price must be geter than 0"
-    }
+    // if(0 < value){
+    //     return "Price must be geter than 0"
+    // }
 }
 
 /**
@@ -436,5 +448,5 @@ const isValidStatus = (value)=>{
 module.exports = {
     isValidRequest, isValidName, isValidEmail, isValidFile, isValidPhone, isValidpass, isValidAddress, isValidAdd,
     isValidData, isValidPrice, isValidCurrencyId, isValidCurrencyFormat, isValidFreeShipping, isValidstyle, isValidavailableSizes,
-    isValidinstallments, isValidStatus
+    isValidinstallments, isValidStatus,isValidTitle
 }

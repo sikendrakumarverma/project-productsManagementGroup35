@@ -1,6 +1,7 @@
 const isValidUserData = require('./dataValidationModules');
 // const { createProduct } = require('../DataValidation/dataValidation')
-const mongoose = require('mongoose')
+const mongoose = require('mongoose');
+const { find } = require('../Models/UserModel');
 
 //User data validation
 
@@ -157,7 +158,7 @@ const createProducts = (data, files) => {
     let msgUserData = isValidUserData.isValidRequest(data)
     if (msgUserData) return msgUserData
 
-    let msgTitleData = isValidUserData.isValidData(title)
+    let msgTitleData = isValidUserData.isValidTitle(title)
     if (msgTitleData) return msgTitleData
 
     let msgDesData = isValidUserData.isValidData(description)
@@ -198,12 +199,12 @@ const createProducts = (data, files) => {
         if (msgstyleData) return msgstyleData
     }
 
-    if (availableSizes.length < 4 && availableSizes.length >0) {
+    if (availableSizes.length < 4 && availableSizes.length > 0) {
         let arr = ["S", "XS", "M", "X", "L", "XXL", "XL"];
         let inc = arr.includes(availableSizes)
         if (!inc) return "availableSizes size should be only : S, XS, M, X, L, XXL, XL"
     } else {
-        data.availableSizes=availableSizes.split(",")
+        data.availableSizes = availableSizes.split(",")
         let msgavailableSizesData = isValidUserData.isValidavailableSizes(data.availableSizes)
         if (msgavailableSizesData) return msgavailableSizesData
     }
@@ -221,7 +222,7 @@ const testProduct = (datas, FindData, product) => {
 
     // using destructuring of body data.  
     const { title, description, isFreeShipping, style, removeSize,
-        availableSizes, installments, currencyId, currencyFormat } = datas
+        availableSizes, installments, currencyId, currencyFormat, price } = datas
 
     if (title) {
         FindData.title = title
@@ -230,23 +231,22 @@ const testProduct = (datas, FindData, product) => {
         FindData.description = description
     }
     if (isFreeShipping) {
-        datas.isFreeShipping = JSON.parse(datas.isFreeShipping)
-        FindData.isFreeShipping = datas.isFreeShipping
+        FindData.isFreeShipping = JSON.parse(datas.isFreeShipping)
+        //FindData.isFreeShipping = datas.isFreeShipping
     }
     if (style) {
         FindData.style = style
     }
-    if (availableSizes) {
-        let Size = product.availableSizes
-        let value = datas.availableSizes
-        let inc = Size.includes(value)
-        if (inc === false) {
-            Size.push(value)
-        }
-        FindData.availableSizes = Size
+    if (price) {
+        if (!/^\d*\.?\d*$/.test(price)) return "price should only decimal number or number "
+        FindData.price = parseFloat(price)
     }
+    if (availableSizes) {
+         FindData.availableSizes = availableSizes
+         }
+   
     if (removeSize) {
-        let Size = FindData.availableSizes
+        let Size = product.availableSizes
         let value = datas.removeSize
         let inc = Size.includes(value)
         if (inc === true) {
@@ -267,21 +267,12 @@ const testProduct = (datas, FindData, product) => {
     return FindData
 }
 
-
-//Update product
-
-const updateProduct = (data, files) => {
+const getProduct = (data) => {
     // using destructuring of body data.                
     const { title, description, price, currencyId, currencyFormat,
         isFreeShipping, style, availableSizes, installments } = data;
 
     //Input data validation
-    if (data) {
-        let msgUserData = isValidUserData.isValidRequest(data)
-        if (msgUserData) return msgUserData
-    }
-
-
     if (title) {
         let msgTitleData = isValidUserData.isValidData(title)
         if (msgTitleData) return msgTitleData
@@ -312,7 +303,65 @@ const updateProduct = (data, files) => {
         if (msgisFreeShippingData) return msgisFreeShippingData
     }
 
-    if (files) {
+    if (style) {
+        let msgstyleData = isValidUserData.isValidstyle(style)
+        if (msgstyleData) return msgstyleData
+    }
+
+    if (availableSizes) {
+        let msgavailableSizesData = isValidUserData.isValidavailableSizes(availableSizes)
+        if (msgavailableSizesData) return msgavailableSizesData
+    }
+
+    if (installments) {
+        let msginstallmentsData = isValidUserData.isValidinstallments(installments)
+        if (msginstallmentsData) return msginstallmentsData
+    }
+}
+
+
+//Update product
+
+const updateProduct = (pdata,product, files) => {
+    // using destructuring of body data.                
+    const { title, description, price, currencyId, currencyFormat,
+        isFreeShipping, style, availableSizes, installments } = pdata;
+
+    //Input data validation
+
+    let msgUserData = isValidUserData.isValidRequest(pdata)
+    if (msgUserData) return msgUserData
+    if (title) {
+        let msgTitleData = isValidUserData.isValidData(title)
+        if (msgTitleData) return msgTitleData
+    }
+
+    if (description) {
+        let msgDesData = isValidUserData.isValidData(description)
+        if (msgDesData) return msgDesData
+    }
+
+    if (price) {
+        let msgPriceData = isValidUserData.isValidPrice(price)
+        if (msgPriceData) return msgPriceData
+    }
+
+    if (currencyId) {
+        let msgcurrencyIdData = isValidUserData.isValidCurrencyId(currencyId)
+        if (msgcurrencyIdData) return msgcurrencyIdData
+    }
+
+    if (currencyFormat) {
+        let msgCurrencyFormatData = isValidUserData.isValidCurrencyFormat(currencyFormat)
+        if (msgCurrencyFormatData) return msgCurrencyFormatData
+    }
+
+    if (isFreeShipping) {
+        let msgisFreeShippingData = isValidUserData.isValidFreeShipping(isFreeShipping)
+        if (msgisFreeShippingData) return msgisFreeShippingData
+    }
+
+    if (files.length > 0) {
         let msgFileData = isValidUserData.isValidFile(files)
         if (msgFileData) return msgFileData
     }
@@ -323,8 +372,25 @@ const updateProduct = (data, files) => {
     }
 
     if (availableSizes) {
-        let msgavailableSizesData = isValidUserData.isValidavailableSizes(availableSizes)
-        if (msgavailableSizesData) return msgavailableSizesData
+        if (availableSizes.length < 4 && availableSizes.length > 0) {
+            let arr = ["S", "XS", "M", "X", "L", "XXL", "XL"];
+            let inc = arr.includes(availableSizes)
+            if (!inc) return `${availableSizes}....availableSizes size should be only : S, XS, M, X, L, XXL, XL`
+        } else {
+            let sizes = availableSizes.split(",")
+            let value=product.availableSizes
+            console.log(value)
+            for(let i=0;i<sizes.length;i++){
+                let inct= value.includes(sizes[i])
+                if(!inct){
+                    value.push(sizes[i])
+                }
+            }
+            console.log(value)
+            pdata.availableSizes= value
+            let msgavailableSizesData = isValidUserData.isValidavailableSizes(pdata.availableSizes)
+            if (msgavailableSizesData) return msgavailableSizesData
+        }
     }
 
     if (installments) {
@@ -369,5 +435,5 @@ const isValidCart = (data, UserId) => {
 
 module.exports = {
     isValideUser, isValidLoginData, isValideUpdateData, testAddress,
-    createProducts, testProduct, updateProduct, isValidCart
+    createProducts, testProduct, updateProduct, isValidCart, getProduct
 }

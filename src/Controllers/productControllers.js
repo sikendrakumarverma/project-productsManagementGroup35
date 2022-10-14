@@ -1,5 +1,5 @@
 const isValidUserData = require('../DataValidation/dataValidationModules');
-const { createProducts, updateProduct, testProduct } = require("../DataValidation/dataValidation")
+const { createProducts, updateProduct,getProduct, testProduct } = require("../DataValidation/dataValidation")
 const productModel = require("../Models/productModel");
 const mongoose = require('mongoose')
 const { uploadFile } = require("../Sdb_connection/aws");
@@ -25,7 +25,7 @@ const createProduct = async (req, res) => {
         
         const { title, description, price, currencyId, currencyFormat,
             isFreeShipping, style, availableSizes, installments } = data;
-            return res.send(typeof data.price)
+            //return res.send(typeof data.price)
 
         const isTitleUnique = await productModel.findOne({ title });
         if (isTitleUnique) {
@@ -66,7 +66,7 @@ const getProductData = async (req, res) => {
 
         let Pdata = testProduct(datas, FindData)
 
-        let msgUserData = updateProduct(Pdata)
+        let msgUserData = getProduct(Pdata)
         if (msgUserData) {
             return res.status(400).send({ status: false, message: msgUserData })
         }
@@ -90,6 +90,7 @@ const getProductData = async (req, res) => {
 
         // return res.send(FindData)
         let data = await productModel.find(FindData).sort( { "price": -1 } )
+        if(data.length==0) return res.status(404).send({status:"false",message: "Product not found"})
         return res.status(200).send({ status: true, message: "products get successfully", data: data })
 
     } catch (error) {
@@ -137,7 +138,7 @@ const updateProductById = async (req, res) => {
         let data = req.body
         const { title, price } = data;
         const files = req.files;
-
+      //return res.send( data.availableSizes)
         if (!ProductId) {
             return res.status(400).send({ status: false, message: "Product Id not preasent" })
         }
@@ -150,14 +151,15 @@ const updateProductById = async (req, res) => {
         if (!product) {
             return res.status(404).send({ status: false, message: "Data not found." })
         }
-
+    //   return res.send( product)
         //Input data validation
         let FindData = {}
-        let Pdata = testProduct(data, FindData, product)
-        if(price)  Pdata.price = parseFloat(price)
-
-        // return res.send(Pdata)
-        let msgUserData = updateProduct(Pdata, files)
+        let pdata = testProduct(data, FindData, product)
+        if(price)  pdata.price = parseFloat(price)
+       
+         //return res.send(FindData)
+        let msgUserData = updateProduct(pdata,product, files)
+        //return res.send( pdata.availableSizes)
         if (msgUserData) {
             return res.status(400).send({ status: false, message: msgUserData })
         }
@@ -172,11 +174,12 @@ const updateProductById = async (req, res) => {
         // Files data to url convert
         if (files.length > 0) {
             let uploadedFileURL = await uploadFile(files[0])
-            data.productImage = uploadedFileURL;
+            FindData.productImage = uploadedFileURL;
         }
-
-        let updateData = await productModel.findOneAndUpdate({ _id: ProductId, isDeleted: false }, data, { new: true });
-        return res.status(200).send({ status: true, message: "Product update successfully", data: updateData })
+      return res.send("message")
+       // let updateData = await productModel.findOneAndUpdate({ _id: ProductId, isDeleted: false }, FindData, { new: true });
+        
+        //return res.status(200).send({ status: true, message: "Product update successfully", data: updateData })
 
     } catch (error) {
         return res.status(500).send({ status: false, message: error.message })
