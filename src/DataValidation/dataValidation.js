@@ -100,15 +100,7 @@ const isValideUpdateData = (data, Data, files) => {
     }
 
 }
-
-// {
-//     "address": {
-//         "shipping": {
-//             "street": "Bijoy"
-//         }
-//     }
-// }
-
+//Address test
 const testAddress = (address, Address) => {
     if (address.shipping) {
         if (address.shipping.street) {
