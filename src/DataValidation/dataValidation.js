@@ -242,17 +242,7 @@ const testProduct = (datas, FindData, product) => {
         FindData.price = parseFloat(price)
     }
     if (availableSizes) {
-         FindData.availableSizes = availableSizes
-         }
-   
-    if (removeSize) {
-        let Size = product.availableSizes
-        let value = datas.removeSize
-        let inc = Size.includes(value)
-        if (inc === true) {
-            Size = Size.filter(element => element !== value);
-        }
-        FindData.availableSizes = Size
+        FindData.availableSizes = availableSizes
     }
     if (installments) {
         datas.installments = parseInt(datas.installments)
@@ -264,6 +254,7 @@ const testProduct = (datas, FindData, product) => {
     if (currencyFormat) {
         FindData.currencyFormat = datas.currencyFormat
     }
+    if(removeSize) FindData.removeSize = removeSize
     return FindData
 }
 
@@ -322,15 +313,15 @@ const getProduct = (data) => {
 
 //Update product
 
-const updateProduct = (pdata,product, files) => {
+const updateProduct = (pdata, product, files) => {
     // using destructuring of body data.                
     const { title, description, price, currencyId, currencyFormat,
-        isFreeShipping, style, availableSizes, installments } = pdata;
+        isFreeShipping, style, availableSizes, installments, removeSize } = pdata;
 
     //Input data validation
-
     let msgUserData = isValidUserData.isValidRequest(pdata)
     if (msgUserData) return msgUserData
+
     if (title) {
         let msgTitleData = isValidUserData.isValidData(title)
         if (msgTitleData) return msgTitleData
@@ -370,27 +361,38 @@ const updateProduct = (pdata,product, files) => {
         let msgstyleData = isValidUserData.isValidstyle(style)
         if (msgstyleData) return msgstyleData
     }
-
+    // return 
     if (availableSizes) {
         if (availableSizes.length < 4 && availableSizes.length > 0) {
-            let arr = ["S", "XS", "M", "X", "L", "XXL", "XL"];
-            let inc = arr.includes(availableSizes)
-            if (!inc) return `${availableSizes}....availableSizes size should be only : S, XS, M, X, L, XXL, XL`
-        } else {
-            let sizes = availableSizes.split(",")
-            let value=product.availableSizes
-            console.log(value)
-            for(let i=0;i<sizes.length;i++){
-                let inct= value.includes(sizes[i])
-                if(!inct){
-                    value.push(sizes[i])
-                }
-            }
-            console.log(value)
-            pdata.availableSizes= value
+            let value = product.availableSizes
+            value.push(availableSizes)
+            pdata.availableSizes = value
             let msgavailableSizesData = isValidUserData.isValidavailableSizes(pdata.availableSizes)
             if (msgavailableSizesData) return msgavailableSizesData
         }
+        if (availableSizes.length > 3) {
+            let sizes = availableSizes.split(",")
+            let value = product.availableSizes
+            for (let i = 0; i < sizes.length; i++) {
+                let inct = value.includes(sizes[i])
+                if (!inct) {
+                    value.push(sizes[i])
+                }
+            }
+            pdata.availableSizes = value
+            let msgavailableSizesData = isValidUserData.isValidavailableSizes(pdata.availableSizes)
+            if (msgavailableSizesData) return msgavailableSizesData
+        }
+    }
+
+    if (removeSize) {
+        let Size = product.availableSizes
+        let value = pdata.removeSize
+        let inc = Size.includes(value)
+        if (inc === true) {
+            Size = Size.filter(element => element !== value);
+        }
+        pdata.availableSizes = Size
     }
 
     if (installments) {

@@ -14,9 +14,7 @@ const createProduct = async (req, res) => {
         // using destructuring of body data.  
         let data = req.body
         const files = req.files;
-        //console.log(availableSizes.split(","))
 
-        //return res.send(availableSizes)
         //Input data validation
         let msgUserData = createProducts(data, files)
         if (msgUserData) {
@@ -25,7 +23,6 @@ const createProduct = async (req, res) => {
         
         const { title, description, price, currencyId, currencyFormat,
             isFreeShipping, style, availableSizes, installments } = data;
-            //return res.send(typeof data.price)
 
         const isTitleUnique = await productModel.findOne({ title });
         if (isTitleUnique) {
@@ -151,15 +148,15 @@ const updateProductById = async (req, res) => {
         if (!product) {
             return res.status(404).send({ status: false, message: "Data not found." })
         }
-    //   return res.send( product)
+
         //Input data validation
         let FindData = {}
         let pdata = testProduct(data, FindData, product)
         if(price)  pdata.price = parseFloat(price)
        
-         //return res.send(FindData)
-        let msgUserData = updateProduct(pdata,product, files)
-        //return res.send( pdata.availableSizes)
+        //  return res.send(data.removeSize)
+        let msgUserData = updateProduct(pdata, product, files)
+        // FindData.availableSizes = pdata.availableSizes;
         if (msgUserData) {
             return res.status(400).send({ status: false, message: msgUserData })
         }
@@ -176,10 +173,9 @@ const updateProductById = async (req, res) => {
             let uploadedFileURL = await uploadFile(files[0])
             FindData.productImage = uploadedFileURL;
         }
-      return res.send("message")
-       // let updateData = await productModel.findOneAndUpdate({ _id: ProductId, isDeleted: false }, FindData, { new: true });
-        
-        //return res.status(200).send({ status: true, message: "Product update successfully", data: updateData })
+
+       let updateData = await productModel.findOneAndUpdate({ _id: ProductId, isDeleted: false }, FindData, { new: true });
+        return res.status(200).send({ status: true, message: "Product update successfully", data: updateData })
 
     } catch (error) {
         return res.status(500).send({ status: false, message: error.message })
