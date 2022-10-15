@@ -67,4 +67,26 @@ const updateOrder = async (req, res)=>{
 }
 
 
-module.exports = {createOrder, updateOrder }
+
+const getAllOrder = async(req, res)=>{
+    try{
+        let UserId = req.params.userId;
+        let data = req.body;
+        data.userId = UserId
+
+        if(data.status){
+            let message = isValidUserData.isValidStatus(Status)
+            if(message) return res.status(400).send({status: false, message: message})
+        }
+
+        let getData = await orderModel.find(data)
+        return res.status(200).send({status: false, message: "All order get Successfully", data: getData})
+
+
+    }catch(error){
+        return res.status(500).send({status: false, message: error.message})
+    }
+}
+
+
+module.exports = {createOrder, updateOrder, getAllOrder}

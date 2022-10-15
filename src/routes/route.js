@@ -85,6 +85,10 @@ router.post("/users/:userId/orders" , Auth.authentication, Auth.authorization, o
 
 router.put("/users/:userId/orders",Auth.authentication, Auth.authorization, orderController.updateOrder)
 
+//When user order get call this api.
+
+router.get("/users/:userId/orders",Auth.authentication, Auth.authorization, orderController.getAllOrder)
+
 
 
 //IS invalid api call

@@ -60,14 +60,13 @@ const isValidLoginData = (data) => {
 
 const isValideUpdateData = (data, Data, files) => {
     // using destructuring of body data.
+    if (files) data.profileImage = "yes";
     const { fname, lname, email, phone, password, address } = data;
 
     //Input data validation
-    if (!(Object.keys(data).length > 0) || !(files.length > 0)) return "Any key and value is required."
-    if (data) {
-        let msgUserData = isValidUserData.isValidRequest(data)
-        if (msgUserData) return msgUserData
-    }
+    let msgUserData = isValidUserData.isValidRequest(data)
+    if (msgUserData) return msgUserData
+
 
     if (fname) {
         let msgFnameData = isValidUserData.isValidName(fname)
@@ -305,16 +304,15 @@ const getProduct = (data) => {
 //Update product
 
 const updateProduct = (pdata, product, files) => {
-    // using destructuring of body data.                
+    // using destructuring of body data.
+    if (files) pdata.productImage = "yes";
     const { title, description, price, currencyId, currencyFormat,
         isFreeShipping, style, availableSizes, installments, removeSize } = pdata;
 
     //Input data validation
-    if (!(Object.keys(pdata).length > 0) || !(files.length > 0)) return "Any key and value is required."
-    if (pdata) {
-        let msgUserData = isValidUserData.isValidRequest(data)
-        if (msgUserData) return msgUserData
-    }
+    let msgUserData = isValidUserData.isValidRequest(pdata)
+    if (msgUserData) return msgUserData
+
     if (title) {
         let msgTitleData = isValidUserData.isValidData(title)
         if (msgTitleData) return msgTitleData
@@ -427,8 +425,8 @@ const isValidCart = (data, UserId, CartId) => {
 
     if (quantity) {
         let regex = /\b([1-9]|[1-1][0-9]|20)\b/gm
-        if(!regex.test(quantity)) return "please enter valid quantity like 1 to 20."
-    }else{
+        if (!regex.test(quantity)) return "please enter valid quantity like 1 to 20."
+    } else {
         data.quantity = 1;
     }
 
@@ -438,18 +436,18 @@ const isValidCart = (data, UserId, CartId) => {
 
 // Test cart items
 
-const testCartItems = (CartItems, Products)=>{
-    let count=0;
-    for(let i = 0; i < CartItems.length; i++){
+const testCartItems = (CartItems, Products) => {
+    let count = 0;
+    for (let i = 0; i < CartItems.length; i++) {
         let data = CartItems[i].productId
         let pId = Products._id
-        if(data.toString() === pId.toString()){
+        if (data.toString() === pId.toString()) {
             count++
         }
     }
-    if(count >0){
+    if (count > 0) {
         return false;
-    }else{
+    } else {
         return true;
     }
 

@@ -10,15 +10,15 @@
 //     return count;
     
 // };
-// let n = 21
+let n = "fdxjnvn"
 
-// let regex = /\b([1-9]|[1-1][0-9]|20)\b/gm
+let regex = /^[+-]?([0-9]+([.][0-9]*)?|[.][0-9]+)$/
 
-// let s = regex.test(n)
+let s = regex.test(n)
 
 
-let arr = ["ok", "po", "jl"]
+// let arr = ["ok", "po", "jl"]
 
-arr.pop("ok")
+// arr.pop("ok")
 
-console.log(arr)
+console.log(s)
