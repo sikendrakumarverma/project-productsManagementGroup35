@@ -159,7 +159,7 @@ const createProducts = (data, files) => {
         return "price is required"
     } else {
 
-        if (!/^\d*\.?\d*$/.test(price)) return "price should only decimal number or number "
+        if (!/^[+-]?([0-9]+([.][0-9]*)?|[.][0-9]+)$/.test(price)) return "price should only decimal number or number "
         data.price = parseFloat(price)
     }
 
@@ -229,7 +229,7 @@ const testProduct = (datas, FindData, product) => {
         FindData.style = style
     }
     if (price) {
-        if (!/^\d*\.?\d*$/.test(price)) return "price should only decimal number or number "
+        if (!/^[+-]?([0-9]+([.][0-9]*)?|[.][0-9]+)$/.test(price)) return "price should only decimal number or number "
         FindData.price = parseFloat(price)
     }
     if (availableSizes) {
@@ -354,6 +354,7 @@ const updateProduct = (pdata, product, files) => {
         let msgstyleData = isValidUserData.isValidstyle(style)
         if (msgstyleData) return msgstyleData
     }
+
     // return 
     if (availableSizes) {
         if (availableSizes.length < 4 && availableSizes.length > 0) {

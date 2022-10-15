@@ -78,7 +78,7 @@ const userLogin = async (req, res) => {
         }
 
         //Input data verify
-        let Password = bcrypt.compare(password, isEmailUnique.password)
+        let Password = await bcrypt.compare(password, isEmailUnique.password)
         if (!Password) {
             return res.status(400).send({ status: false, message: "invalid login credentials" });
         }
