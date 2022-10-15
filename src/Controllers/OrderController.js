@@ -34,7 +34,6 @@ const createOrder = async (req, res)=>{
             totalItems : cartData.totalItems,
             totalQuantity: Quantity
         };
-        return res.send({data: orderData})
         const createOrder = await orderModel.create(orderData);
         await cartModel.findOneAndUpdate({userId: UserId}, {$set: {items: [], totalPrice: 0, totalItems: 0}},{new: true})
         return res.status(201).send({ status: true, message: "Order created successfully", data: createOrder })
