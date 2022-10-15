@@ -63,7 +63,7 @@ const isValideUpdateData = (data, Data, files) => {
     const { fname, lname, email, phone, password, address } = data;
 
     //Input data validation
-    if ((Object.keys(data).length > 0) || (files.length > 0)) return "Any key and value is required."
+    if (!(Object.keys(data).length > 0) || !(files.length > 0)) return "Any key and value is required."
     if (data) {
         let msgUserData = isValidUserData.isValidRequest(data)
         if (msgUserData) return msgUserData
@@ -245,7 +245,7 @@ const testProduct = (datas, FindData, product) => {
     if (currencyFormat) {
         FindData.currencyFormat = datas.currencyFormat
     }
-    if(removeSize) FindData.removeSize = removeSize
+    if (removeSize) FindData.removeSize = removeSize
     return FindData
 }
 
@@ -310,9 +310,11 @@ const updateProduct = (pdata, product, files) => {
         isFreeShipping, style, availableSizes, installments, removeSize } = pdata;
 
     //Input data validation
-    let msgUserData = isValidUserData.isValidRequest(pdata)
-    if (msgUserData) return msgUserData
-
+    if (!(Object.keys(pdata).length > 0) || !(files.length > 0)) return "Any key and value is required."
+    if (pdata) {
+        let msgUserData = isValidUserData.isValidRequest(data)
+        if (msgUserData) return msgUserData
+    }
     if (title) {
         let msgTitleData = isValidUserData.isValidData(title)
         if (msgTitleData) return msgTitleData
@@ -357,7 +359,7 @@ const updateProduct = (pdata, product, files) => {
         if (availableSizes.length < 4 && availableSizes.length > 0) {
             let value = product.availableSizes
             let inct = value.includes(availableSizes)
-            if(!inct) value.push(availableSizes)
+            if (!inct) value.push(availableSizes)
             pdata.availableSizes = value
         }
         if (availableSizes.length > 3) {
@@ -379,7 +381,7 @@ const updateProduct = (pdata, product, files) => {
         if (removeSize.length < 4 && removeSize.length > 0) {
             let value = product.availableSizes
             let inct = value.includes(removeSize)
-            if(inct) value = value.filter(element => element !== removeSize);
+            if (inct) value = value.filter(element => element !== removeSize);
             pdata.availableSizes = value
         }
         if (removeSize.length > 3) {
@@ -388,7 +390,7 @@ const updateProduct = (pdata, product, files) => {
             for (let i = 0; i < sizes.length; i++) {
                 let inct = value.includes(sizes[i])
                 if (inct) {
-                    value= value.filter(element => element !== sizes[i]);
+                    value = value.filter(element => element !== sizes[i]);
                 }
             }
             pdata.availableSizes = value
@@ -406,38 +408,55 @@ const updateProduct = (pdata, product, files) => {
 
 //Create new cart.
 
-const isValidCart = (data, UserId) => {
+const isValidCart = (data, UserId, CartId) => {
     // using destructuring of body data.  
-    const { userId, items, totalPrice, totalItems } = data;
-    const { productId, quantity } = items[0]
+    const { userId, productId, cartId, quantity } = data;
 
-    if (UserId != userId) return "Params and from user Id not match"
-
-    if (!userId) return "User Id not preasent";
-
-    if (mongoose.Types.ObjectId.isValid(userId) == false) return "User Id is not valid";
+    if (userId) {
+        if (UserId != userId) return "Params and from user Id not match"
+        if (mongoose.Types.ObjectId.isValid(userId) == false) return "User Id is not valid";
+    }
 
     if (!productId) return "Product Id not preasent"
-
     if (mongoose.Types.ObjectId.isValid(productId) == false) return "Product Id is not valid"
 
-    // let msgTotalPriceData = isValidUserData.isValidPrice(totalPrice)
-    // if (msgTotalPriceData) return msgTotalPriceData
+    if (cartId) {
+        if (CartId != cartId) return "Invalid cart id."
+    }
 
-    // let msgTotalItemsData = isValidUserData.isValidPrice(totalItems)
-    // if (msgTotalItemsData ) return msgTotalItemsData 
+    if (quantity) {
+        let regex = /\b([1-9]|[1-1][0-9]|20)\b/gm
+        if(!regex.test(quantity)) return "please enter valid quantity like 1 to 20."
+    }else{
+        data.quantity = 1;
+    }
 
-    let msgTotalQuantityData = isValidUserData.isValidPrice(quantity)
-    if (msgTotalQuantityData) return msgTotalQuantityData
 
 }
 
 
+// Test cart items
 
+const testCartItems = (CartItems, Products)=>{
+    let count=0;
+    for(let i = 0; i < CartItems.length; i++){
+        let data = CartItems[i].productId
+        let pId = Products._id
+        if(data.toString() === pId.toString()){
+            count++
+        }
+    }
+    if(count >0){
+        return false;
+    }else{
+        return true;
+    }
 
+}
 
 
 module.exports = {
     isValideUser, isValidLoginData, isValideUpdateData, testAddress,
-    createProducts, testProduct, updateProduct, isValidCart, getProduct
+    createProducts, testProduct, updateProduct, isValidCart, getProduct,
+    testCartItems
 }

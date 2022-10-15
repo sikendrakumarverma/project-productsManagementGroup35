@@ -1,7 +1,5 @@
-const isValidUserData = require('../DataValidation/dataValidationModules');
-const { isValidCart } = require('../DataValidation/dataValidation')
+const { isValidCart, testCartItems} = require('../DataValidation/dataValidation')
 const cartModel = require("../Models/cartModel");
-const { uploadFile } = require("../Sdb_connection/aws");
 const mongoose = require('mongoose')
 const productModel = require('../Models/productModel');
 require('dotenv').config();
@@ -12,35 +10,53 @@ require('dotenv').config();
 const AddtoCart = async (req, res) => {
     try {
         let UserId = req.params.userId
-
         // using destructuring of body data.  
         let data = req.body;
-        data.items = JSON.parse(data.items)
-        const { userId, items, totalPrice, totalItems } = data;
 
-        let message = isValidCart(data, UserId)
+        let CartId = await cartModel.findOne({ userId: UserId })
+
+        let message = isValidCart(data, UserId, CartId)
         if (message) {
             return res.status(400).send({ status: false, message: message })
         }
+        let Products = await productModel.findOne({ isDeleted: false, _id: data.productId })
+        if (!Products) {
+            return res.status(404).send({ status: false, message: "Data not found." })
+        }
+        
+        const { productId, cartId, quantity } = data; 
+        if (!CartId) {
+            let Price = Products.price * quantity
+            let Items = [{ productId: productId, quantity: quantity }]
+            //Create User data after format 
+            const CartData = {
+                userId: UserId, items: Items,
+                totalPrice: Price, totalItems: 1,
+            };
 
-        let Prices = 0
-        items.map(async (value)=>{
-            let products =await productModel.findById(value.productId)
-            let Price = products.price*value.quantity
-            Prices += Price
-        })
+            const createCart = await cartModel.create(CartData)
+            return res.status(201).send({ status: true, message: "Cart created successfully", data: createCart })
+        }
 
-        //Create User data after format 
-        const CartData = {
-            userId: userId,
-            items: items,
-            totalPrice: Prices,
-            totalItems : items.length,
-        };
-
-        const createCart = await cartModel.create(CartData);
-        return res.status(201).send({ status: true, message: "Cart created successfully", data: createCart })
-
+        if (CartId) {
+            let CartItems = CartId.items
+            let CartData = testCartItems(CartItems, Products)
+            if(!CartData){
+                return res.status(400).send({status: false, message:"product already present in your cart."})
+            }
+            let Prices = CartId.totalPrice + Products.price * quantity
+            let NewItems = { productId: productId, quantity: quantity }
+            CartItems.push(NewItems)
+            //Create User data after format 
+            const CartDatas = {
+                items: CartItems,
+                totalPrice: Prices, totalItems: CartId.totalItems + 1,
+            };
+            // return res.send({data: CartDatas})
+            await cartModel.findOneAndUpdate({userId: UserId}, CartDatas, {new: true});
+            let createData = await cartModel.findOne({ userId: UserId })
+            return res.status(201).send({ status: true, message: "Product add in Cart successfully", data: createData })
+        }
 
 
     } catch (error) {
@@ -55,18 +71,27 @@ const updateCartData = async (req, res) => {
     try {
         let UserId = req.params.userId
         let data = req.body;
-        data.removeProduct = prsentInt(data.removeProduct)
-        const { removeProduct, updateProduct} = data
+        const { removeProduct, productId, cartId } = data
 
-        let cartData = await cartModel.findOne({userId: UserId})
-        let RemData = cartData.items[removeProduct]
-        if(!RemData){
-            return res.status(400).send({status: false, message: "Pleace enter valide index."})
+        let cartData = await cartModel.findOne({ userId: UserId })
+        if(cartId == cartData._id){
+            return res.status(400).send({status: false, message: "please enter valid card Id."})
         }
 
-        await cartModel.findOneAndUpdate({userId: UserId },{ $pull: { 'items': RemData } }, { multi: true });
-        return res.status(200).send({satus: false, message: "Your cart is update successfully"})
-          
+        let Products = await productModel.findOne({ isDeleted: false, _id: productId })
+        if (!Products) {
+            return res.status(404).send({ status: false, message: "Data not found." })
+        }
+        let RemData = cartData.items[removeProduct]
+        if (RemData.productId.toString() !== productId.toString()) {
+            return res.status(400).send({ status: false, message: "Pleace enter valide product Id." })
+        }
+        let Prices = Products.price * RemData.quantity
+
+        await cartModel.findOneAndUpdate({ userId: UserId }, { $pull: { 'items': RemData }, $inc: { totalItems: -1, totalPrice: -Prices  } }, { multi: true });
+        let createData = await cartModel.findOne({ userId: UserId })
+        return res.status(200).send({ satus: false, message: "Your cart is update successfully" ,data: createData })
+
 
     } catch (error) {
         return res.status(500).send({ status: false, message: error.message })
@@ -81,9 +106,9 @@ const getCartData = async (req, res) => {
     try {
         let UserId = req.params.userId
 
-        let data = await cartModel.find({userId: UserId})
-        if(!data){
-            return res.status(404).send({status: false, message: "pleace create a cart"})
+        let data = await cartModel.findOne({ userId: UserId })
+        if (!data) {
+            return res.status(404).send({ status: false, message: "pleace create a cart" })
         }
         return res.status(200).send({ status: true, message: "Your cart summary", data: data })
 
@@ -100,14 +125,18 @@ const deleteCartData = async (req, res) => {
     try {
         let UserId = req.params.userId
 
-        let data = await cartModel.find({userId: UserId})
-        if(!data){
-            return res.status(404).send({status: false, message: "pleace create a cart"})
+        let data = await cartModel.findOne({ userId: UserId })
+        if (!data) {
+            return res.status(404).send({ status: false, message: "pleace create a cart" })
+        }
+        // return res.send({data: data.items.length})
+        if(data.items.length > 0 && data.totalPrice > 0 && data.totalItems > 0){
+            return res.status(400).send({status: false, message: "make sure your cart is null"})
         }
 
-        await cartModel.findOneAndRemove({userId: UserId})
+        await cartModel.findOneAndRemove({ userId: UserId })
 
-        return res.status(200).send({ status: true, message: "Your cart is Deleted." })
+        return res.status(204).send({ status: true, message: "Your cart is Deleted." })
 
     } catch (error) {
         return res.status(500).send({ status: false, message: error.message })

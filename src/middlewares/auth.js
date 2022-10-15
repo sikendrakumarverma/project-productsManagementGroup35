@@ -28,7 +28,7 @@ const authentication = async (req, res, next) => {
         next();
 
     } catch (error) {
-        res.status(500).send({ status: false, msg: error.message })
+        return res.status(500).send({ status: false, msg: error.message })
     }
 
 }
@@ -54,7 +54,7 @@ const authorization = async (req, res, next) => {
         next()
 
     } catch (err) {
-        res.status(500).send({ status: false, msg: err.message })
+        return res.status(500).send({ status: false, msg: err.message })
     }
 }
 

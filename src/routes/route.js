@@ -79,11 +79,11 @@ router.delete("/users/:userId/cart" , Auth.authentication, Auth.authorization, c
 
 //When order create call this api.
 
-router.post("/users/:userId/cart" , Auth.authentication, Auth.authorization, orderController.createOrder)
+router.post("/users/:userId/orders" , Auth.authentication, Auth.authorization, orderController.createOrder)
 
 //When user order update call this api.
 
-router.put("/users/:userId/cart",Auth.authentication, Auth.authorization, orderController.updateOrder)
+router.put("/users/:userId/orders",Auth.authentication, Auth.authorization, orderController.updateOrder)
 
 
 

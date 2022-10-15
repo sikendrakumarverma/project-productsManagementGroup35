@@ -1,9 +1,6 @@
 const isValidUserData = require('../DataValidation/dataValidationModules');
 const orderModel = require("../Models/orderModel");
-const {uploadFile} = require("../Sdb_connection/aws");
 const mongoose = require('mongoose')
-const jwt = require("jsonwebtoken");
-const bcrypt = require('bcryptjs');
 const cartModel = require('../Models/cartModel');
 require('dotenv').config();
 
@@ -16,28 +13,30 @@ const createOrder = async (req, res)=>{
         let UserId = req.params.userId
 
         // using destructuring of body data.  
-        let cartData =await cartModel.find({userId: UserId})
-        let Prices = 0
+        let cartData =await cartModel.findOne({userId: UserId})
+        if(!cartData){
+            return res.status(400).send({status: false, message: "Your cart not exist."})
+        }
+        if(cartData.items.length == 0){
+            return res.status(400).send({status: false, message: "product add in your cart."})
+        }
         let Quantity = 0
-        cartData.items.map(async (value)=>{
-            let products = await productModel.find(cartData.productId)
-            let Price = products.price*value.quantity
-            let QTY = products.quantity
-            Prices += Price
+        for(let i = 0; i < cartData.items.length; i++){
+            let QTY = cartData.items[i].quantity
             Quantity += QTY
-        })
+        }
 
         //Create User data after format 
         const orderData = {
             userId: UserId,
-            items: items,
-            totalPrice: Prices,
-            totalItems : cartData.items.length,
+            items: cartData.items,
+            totalPrice: cartData.totalPrice,
+            totalItems : cartData.totalItems,
             totalQuantity: Quantity
         };
-
+        return res.send({data: orderData})
         const createOrder = await orderModel.create(orderData);
-        await cartModel.findByIdAndRemove({_id: cartData._id})
+        await cartModel.findOneAndUpdate({userId: UserId}, {$set: {items: [], totalPrice: 0, totalItems: 0}},{new: true})
         return res.status(201).send({ status: true, message: "Order created successfully", data: createOrder })
 
 
@@ -56,11 +55,11 @@ const updateOrder = async (req, res)=>{
         let Status = req.body;
 
         let message = isValidUserData.isValidStatus(Status)
-        if(!message){
-            return res.status(400).send({status: false, message: "Invalid status."})
+        if(message){
+            return res.status(400).send({status: false, message: message})
         }
-
-        let updateData = await orderModel.update({usereId: UserId},{$set: {status: Status}}, {new: true})
+        await orderModel.findOneAndUpdate({usereId: UserId},{$set: {status: Status}}, {new: true})
+        let updateData = await orderModel.findOne({usereId: UserId})
         return res.status(200).send({status: false, message: "Status update Successfully", data: updateData})
 
     }catch(error){
