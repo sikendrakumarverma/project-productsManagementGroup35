@@ -190,22 +190,22 @@ const createProducts = (data, files) => {
     }
 
     if (availableSizes.length < 4 && availableSizes.length > 0) {
-        let value = product.availableSizes
+        let value =  ["S", "XS", "M", "X", "L", "XXL", "XL"]
         let inct = value.includes(availableSizes)
         if (!inct) value.push(availableSizes)
-        pdata.availableSizes = value
+        data.availableSizes = value
     }
     if (availableSizes.length > 3) {
         let sizes = availableSizes.split(",")
-        let value = product.availableSizes
+        let value =  ["S", "XS", "M", "X", "L", "XXL", "XL"]
         for (let i = 0; i < sizes.length; i++) {
             let inct = value.includes(sizes[i])
             if (!inct) {
                 value.push(sizes[i])
             }
         }
-        pdata.availableSizes = value
-        let msgavailableSizesData = isValidUserData.isValidavailableSizes(pdata.availableSizes)
+        data.availableSizes = value
+        let msgavailableSizesData = isValidUserData.isValidavailableSizes(data.availableSizes)
         if (msgavailableSizesData) return msgavailableSizesData
     }
     if (installments) {
@@ -301,22 +301,22 @@ const getProduct = (data) => {
 
     if (availableSizes) {
         if (availableSizes.length < 4 && availableSizes.length > 0) {
-            let value = product.availableSizes
+            let value =  ["S", "XS", "M", "X", "L", "XXL", "XL"]
             let inct = value.includes(availableSizes)
             if (!inct) value.push(availableSizes)
-            pdata.availableSizes = value
+            data.availableSizes = value
         }
         if (availableSizes.length > 3) {
             let sizes = availableSizes.split(",")
-            let value = product.availableSizes
+            let value =  ["S", "XS", "M", "X", "L", "XXL", "XL"]
             for (let i = 0; i < sizes.length; i++) {
                 let inct = value.includes(sizes[i])
                 if (!inct) {
                     value.push(sizes[i])
                 }
             }
-            pdata.availableSizes = value
-            let msgavailableSizesData = isValidUserData.isValidavailableSizes(pdata.availableSizes)
+            data.availableSizes = value
+            let msgavailableSizesData = isValidUserData.isValidavailableSizes(data.availableSizes)
             if (msgavailableSizesData) return msgavailableSizesData
         }
     }
