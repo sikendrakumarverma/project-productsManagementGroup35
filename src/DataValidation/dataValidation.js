@@ -434,20 +434,15 @@ const updateProduct = (pdata, product, files) => {
 
 //Create new cart.
 
-const isValidCart = (data, UserId, CartId) => {
+const isValidCart = (data,  CartId) => {
     // using destructuring of body data.  
-    const { userId, productId, cartId, quantity } = data;
-
-    if (userId) {
-        if (UserId != userId) return "Params and from user Id not match"
-        if (mongoose.Types.ObjectId.isValid(userId) == false) return "User Id is not valid";
-    }
+    const { productId, cartId, quantity } = data;
 
     if (!productId) return "Product Id not preasent"
     if (mongoose.Types.ObjectId.isValid(productId) == false) return "Product Id is not valid"
 
     if (cartId) {
-        if (CartId != cartId) return "Invalid cart id."
+        if (CartId._id.toString() != cartId.toString()) return "For this user Invalid cart id."
     }
 
     if (quantity) {
@@ -459,8 +454,6 @@ const isValidCart = (data, UserId, CartId) => {
 
 
 }
-
-
 // Test cart items
 
 const testCartItems = (CartItems, Products) => {

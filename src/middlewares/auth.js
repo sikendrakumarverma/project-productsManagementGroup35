@@ -17,7 +17,7 @@ const authentication = async (req, res, next) => {
         //Verify sekret key
         let decodedToken = jwt.verify(String(token), process.env.secretKey, { ignoreExpiration: true }, function (error, done) {
             if (error) {
-                return res.status(400).send({ status: false, message: "Token is Invalid" });
+                return res.status(401).send({ status: false, message: "Token is Invalid" });
             }
             return done;
         })
@@ -46,6 +46,8 @@ const authorization = async (req, res, next) => {
         if (mongoose.Types.ObjectId.isValid(data) == false) {
             return res.status(400).send({ status: false, message: "UserId is not valid" });
         }
+        let checkUser = await userModel.findById({ _id: data })
+        if (!checkUser) return res.status(404).send({ status: false, message: "user not found of params user id" })
 
         if (Id !== data) {
             return res.status(403).send({ status: false, message: `unauthorized access` });

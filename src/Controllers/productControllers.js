@@ -61,33 +61,33 @@ const getProductData = async (req, res) => {
         let FindData = {}
         let Price = {}
 
-        let Pdata = testProduct(datas, FindData)
+        let data = testProduct(datas, FindData)
 
-        let msgUserData = getProduct(Pdata)
+        let msgUserData = getProduct(data)
         if (msgUserData) {
             return res.status(400).send({ status: false, message: msgUserData })
         }
-
+    //    re.send(data)
         if(availableSizes){
-            FindData.availableSizes = availableSizes
+            FindData.availableSizes = data.availableSizes
         }
 
         if (priceGreaterThan) {
             datas.priceGreaterThan = parseFloat(datas.priceGreaterThan)
             Price.$gt = datas.priceGreaterThan;
-            Pdata.price = Price
+            Finddata.price = Price
         }
 
         if (priceLessThan) {
             datas.priceLessThan = parseFloat(datas.priceLessThan)
             Price.$lt = datas.priceLessThan;
-            Pdata.price = Price
+            Finddata.price = Price
         }
         FindData.isDeleted = false
 
         // return res.send(FindData)
-        let data = await productModel.find(FindData).sort( { "price": -1 } )
-        if(data.length==0) return res.status(404).send({status:"false",message: "Product not found"})
+        let Pdata = await productModel.find(FindData).sort( { "price": -1 } )
+        if(Pdata.length==0) return res.status(404).send({status:"false",message: "Product not found"})
         return res.status(200).send({ status: true, message: "products get successfully", data: data })
 
     } catch (error) {
